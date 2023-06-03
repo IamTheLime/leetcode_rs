@@ -100,27 +100,44 @@ impl ListNode {
         ListNode { next: None, val }
     }
 
-    fn add_node(&mut self, val: i32) -> &mut Self {
-        self.next = Some(Box::new(ListNode::new(val)));
-        return self;
+    fn add_node(&mut self, val: i32) -> &mut Box<ListNode> {
+        let new_node = Box::new(ListNode::new(val));
+        self.next = Some(new_node);
+        match &mut self.next {
+            Some(value) => value,
+            None => panic!(),
+        }
     }
 }
 
 pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<ListNode>> {
-    let mut store_ptrs = [-1, n + 1];
+    let array_size = (n + 1) as usize;
+    let mut store_ptrs = Vec::new();
     let mut current_list_elem = &head;
-    let mut circular_array_counter: i32 = 0;
+    let mut circular_array_counter: usize = 0;
 
     loop {
-        match head {
+        match current_list_elem {
             Some(node) => {
-                store_ptrs[circular_array_counter] = head;
-                circular_array_counter = (circular_array_counter + 1) % (n + 1);
-                head = node.next;
+                if circular_array_counter < array_size {
+                    store_ptrs.push(current_list_elem);
+                } else {
+                    store_ptrs[circular_array_counter % array_size] = current_list_elem;
+                }
+                circular_array_counter += 1;
+                current_list_elem = &node.next;
             }
-            None => expr,
+            None => break,
         }
     }
+
+    println!(
+        "the element prior to the one I want to remove {:?}",
+        &(store_ptrs[(circular_array_counter - array_size) % array_size])
+            .as_ref()
+            .unwrap()
+            .val
+    );
 
     return head;
 }
@@ -135,7 +152,14 @@ fn main() {
     roman_numerals(58);
 
     let mut list_node = Box::new(ListNode::new(1));
-    let _ = &list_node.add_node(2).add_node(3).add_node(4).add_node(5);
+    let _ = &list_node
+        .add_node(2)
+        .add_node(3)
+        .add_node(4)
+        .add_node(5)
+        .add_node(6)
+        .add_node(7)
+        .add_node(8);
 
-    remove_nth_from_end(Some(list_node), 1);
+    remove_nth_from_end(Some(list_node), 2);
 }

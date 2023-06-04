@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 pub fn roman_numerals(n: i32) -> String {
     let numeral_mapping = HashMap::from([
@@ -110,7 +110,12 @@ impl ListNode {
     }
 }
 
-pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<ListNode>> {
+pub fn show_nth_element_to_remove_from_end(
+    head: Option<Box<ListNode>>,
+    n: i32,
+) -> Option<Box<ListNode>> {
+    // This is a dogshit read-only implementation that does not actually remove the node,
+    // and is impossible to addapt as a 1-2-1 change to mutable breaks the  code.
     let array_size = (n + 1) as usize;
     let mut store_ptrs = Vec::new();
     let mut current_list_elem = &head;
@@ -142,6 +147,50 @@ pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<Li
     return head;
 }
 
+pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<ListNode>> {
+    let mut head = head.clone();
+    let mut fast = head.clone();
+    let mut slow = &mut head;
+    let mut index = 0;
+    loop {
+        match fast {
+            Some(node) => {
+                fast = node.next;
+            }
+            None => {
+                let aux = &mut slow;
+                match aux.as_mut() {
+                    Some(node) => {
+                        //This does the actual skip as it marks reaching
+                        //the end of the list
+                        node.next = node
+                            .next
+                            .get_or_insert(Box::new(ListNode::new(-1)))
+                            .next
+                            .clone();
+                    }
+                    None => todo!(),
+                }
+                break;
+            }
+        }
+        if index > n {
+            // This only starts moving once the fast pointer is already doing the
+            // lookahead with the appropriate shift
+            println!("{:?}", index);
+            slow = &mut slow.get_or_insert(Box::new(ListNode::new(-1))).next;
+        }
+        index += 1;
+    }
+    println!("{:?}", head.clone());
+    head
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -161,5 +210,5 @@ fn main() {
         .add_node(7)
         .add_node(8);
 
-    remove_nth_from_end(Some(list_node), 2);
+    remove_nth_from_end(Some(list_node), 6);
 }

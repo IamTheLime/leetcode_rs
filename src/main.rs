@@ -1,4 +1,12 @@
-use std::{collections::HashMap, fmt::Display};
+use std::{
+    borrow::BorrowMut,
+    collections::HashMap,
+    fmt::Display,
+    iter::Enumerate,
+    ops::Index,
+    process::ExitStatus,
+    str::{Chars, FromStr},
+};
 
 pub fn roman_numerals(n: i32) -> String {
     let numeral_mapping = HashMap::from([
@@ -191,6 +199,92 @@ pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<Li
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
+pub fn reverse(x: i32) -> i32 {
+    // This is catastrphic in the event of a very big number close to the bounds of
+    // i32, need to rethink this solution
+    let mut value = x.clone();
+    let mut divisor = 1;
+    let mut multiplier = 1;
+    let mut final_value = 0;
+
+    let s = if x.is_negative() { -1 } else { 1 };
+
+    value = value;
+
+    if s == 1 {
+        while divisor * 10 <= value {
+            divisor = divisor * 10;
+            if divisor.overflowing_mul(10).1 == true {
+                return 0;
+            }
+        }
+        while value > 0 {
+            final_value += (value / divisor) * multiplier;
+            value = value % divisor;
+            divisor = divisor / 10;
+            multiplier = multiplier * 10;
+        }
+    } else {
+        divisor = -1;
+        while divisor * 10 >= value {
+            divisor = divisor * 10;
+            if divisor.overflowing_mul(10).1 == true {
+                return 0;
+            }
+        }
+        while value < 0 {
+            final_value += (value / divisor) * multiplier;
+            value = value % divisor;
+            divisor = divisor / 10;
+            multiplier = multiplier * 10;
+        }
+    }
+
+    final_value = final_value * s;
+
+    println!("{:?}", final_value);
+
+    return final_value;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+pub fn longest_common_prefix(strs: Vec<String>) -> String {
+    let mut char_list: Vec<Chars> = (&strs).into_iter().map(|x| x.chars()).collect();
+
+    let mut prefix: String = String::from_str("").unwrap();
+
+    let mut exit = false;
+
+    while !exit {
+        let mut current_char: Option<char> = None;
+        for entry in &mut char_list {
+            match entry.next() {
+                Some(expr) => {
+                    if current_char.is_some() {
+                        if expr != current_char.unwrap() {
+                            exit = true;
+                            break;
+                        }
+                    } else {
+                        current_char = Some(expr);
+                    }
+                }
+                None => {
+                    exit = true;
+                    break;
+                }
+            }
+        }
+        if exit != true {
+            prefix.push(current_char.unwrap());
+        }
+    }
+
+    prefix
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -198,17 +292,22 @@ pub fn remove_nth_from_end(head: Option<Box<ListNode>>, n: i32) -> Option<Box<Li
 
 fn main() {
     // longest_palindrome(String::from("cbbdiiivvvvvvvkkk"));
-    roman_numerals(58);
+    // roman_numerals(58);
 
-    let mut list_node = Box::new(ListNode::new(1));
-    let _ = &list_node
-        .add_node(2)
-        .add_node(3)
-        .add_node(4)
-        .add_node(5)
-        .add_node(6)
-        .add_node(7)
-        .add_node(8);
-
-    remove_nth_from_end(Some(list_node), 6);
+    // let mut list_node = Box::new(ListNode::new(1));
+    // let _ = &list_node
+    //     .add_node(2)
+    //     .add_node(3)
+    //     .add_node(4)
+    //     .add_node(5)
+    //     .add_node(6)
+    //     .add_node(7)
+    //     .add_node(8);
+    //
+    // remove_nth_from_end(Some(list_node), 6);
+    // reverse(-2147483412);
+    longest_common_prefix(vec![
+        String::from_str("booooo").unwrap(),
+        String::from_str("boor").unwrap(),
+    ]);
 }
